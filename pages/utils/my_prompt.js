@@ -20,7 +20,7 @@ Only epoch keys can receive attestations.
 
 And a person approaches you with the following a question: `;
 
-export const final_prompt = "That is the your short answer: ";
+export const final_prompt = "That is the your answer: ";
 
 const MyComponent = () => {
   return;
