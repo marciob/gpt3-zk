@@ -20,7 +20,6 @@
 | website                         | https://semaphore.appliedzkp.org/                   |                  |
 | documentation                   | https://semaphore.appliedzkp.org/docs/introduction  |                  |
 | frontend implementation example | https://github.com/danilowhk/Semaphore-Simple-Front |                  |
-| documentation                   | https://semaphore.appliedzkp.org/docs/introduction  |                  |
 
 <br>
 
