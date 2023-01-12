@@ -1,4 +1,4 @@
-<h2>This is a folder with file-tune data to teach OpenAI.<h2><br>
+<h2>This is a folder with file-tune data to teach GPT-3.<h2><br>
 
 ## Explaining files / tests
 
