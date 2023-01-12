@@ -2,11 +2,12 @@
 
 ## Explaining files / tests
 
-| **File**    | **What is that**                                                                    | **Observations** |
-| ----------- | ----------------------------------------------------------------------------------- | ---------------- |
-| data1.jsonl | Data related to Semaphore, used to teste GPT-3 to answer questions related to that. |                  |
-| data2.jsonl | Data related to UniRep, used to teste GPT-3 to answer questions related to that.    |                  |
-| data3.jsonl | Test data related to a fake EthHackathon event, used to test GPT-3 generically.     |                  |
+| **File**    | **What is that**                                                                                   | **Observations** |
+| ----------- | -------------------------------------------------------------------------------------------------- | ---------------- |
+| data1.jsonl | Data related to Semaphore, used to teach GPT-3 to answer questions related to that.                |                  |
+| data2.jsonl | Data related to UniRep, used to teach GPT-3 to answer questions related to that.                   |                  |
+| data3.jsonl | Test data related to a fake EthHackathon event, used to test GPT-3 generically.                    |                  |
+| data3.jsonl | Data related to both Semaphore and UniRep, used to teach GPT-3 to answer questions related to that |                  |
 
 <br>
 

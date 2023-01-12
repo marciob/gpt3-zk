@@ -95,7 +95,7 @@ export default function Home() {
           >
             {/* {loading ? "loading..." : "Generate"} */}
             {loading ? (
-              <div className="flex gap-2 justify-center items-center gap-4">
+              <div className="flex justify-center items-center gap-4">
                 <p>Loading...</p>
                 <MoonLoader size={20} />
               </div>
