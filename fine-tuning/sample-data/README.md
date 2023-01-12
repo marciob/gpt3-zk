@@ -21,6 +21,8 @@
 | PSE blog post about UniRep (2023) | https://mirror.xyz/privacy-scaling-explorations.eth/FCVVfy-TQ6R7_wavKj1lCr5dd1zqRvwjnDOYRM5NtsE                    | ---------------- |
 | PSE blog post about UniRep (2022) | https://medium.com/privacy-scaling-explorations/unirep-a-private-and-non-repudiable-reputation-system-7fb5c6478549 | ---------------- |
 
+<br><br>
+
 | **Semaphore**                             | **link**                                            | **Observations** |
 | ----------------------------------------- | --------------------------------------------------- | ---------------- |
 | Semaphore website                         | https://semaphore.appliedzkp.org/                   | ---------------- |
