@@ -17,15 +17,17 @@ export default async function handler(
   const { input } = req.body;
 
   const response = await openai.createCompletion({
-    model: "text-davinci-003",
+    model: "davinci:ft-personal:data1-2023-01-13-16-33-16",
     prompt: `${initial_prompt} ${input} ${final_prompt}`,
-    max_tokens: 500,
-    temperature: 0.5,
-    // top_p: 1,
+    max_tokens: 256,
+    temperature: 0.21,
+    top_p: 1,
     // n: 1,
-    // stream: false,
+    stream: false,
     // logprobs: null,
-    // stop: "\n",
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    stop: ["A:", "Q:", "#"],
   });
 
   const suggestion = response.data?.choices?.[0].text;
