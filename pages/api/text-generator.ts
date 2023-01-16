@@ -17,7 +17,7 @@ export default async function handler(
   const { input } = req.body;
 
   const response = await openai.createCompletion({
-    model: "davinci:ft-personal:data1-2023-01-13-16-33-16",
+    model: "davinci:ft-personal:test2-2023-01-12-04-39-48",
     prompt: `${initial_prompt} ${input} ${final_prompt}`,
     max_tokens: 256,
     temperature: 0.21,
