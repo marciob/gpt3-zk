@@ -24,13 +24,13 @@ export default function Home() {
     }
   }, [input]);
 
-  // function to handle text submit
+  // function to submit the input text
   const submit = async () => {
     //check if character limit is exceeded
     if (input.length > 100) {
       return setError(true);
     }
-
+    //UI loading state
     setLoading(true);
 
     try {
@@ -61,7 +61,7 @@ export default function Home() {
       </Head>
       <div className="max-w-7x1 mx-auto py-12">
         <h2 className="text-2xl font-bold text-center pb-2">
-          Ask about ZK, Semaphore and Unirep
+          Ask me anything about Semaphore
         </h2>
         {/* input field */}
         <div className="flex flex-col gap-2 justify-center w-1/3 mx-auto">
