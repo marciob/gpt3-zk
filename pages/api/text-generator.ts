@@ -8,6 +8,8 @@ type Data = {
   result: any;
 };
 
+const fine_tune_data5 = "davinci:ft-personal:data5-2023-01-14-01-38-36";
+
 const openai = new OpenAIApi(configuration);
 
 export default async function handler(
@@ -17,7 +19,7 @@ export default async function handler(
   const { input } = req.body;
 
   const response = await openai.createCompletion({
-    model: "davinci:ft-personal:test2-2023-01-12-04-39-48",
+    model: fine_tune_data5,
     prompt: `${initial_prompt} ${input} ${final_prompt}`,
     max_tokens: 256,
     temperature: 0.21,
