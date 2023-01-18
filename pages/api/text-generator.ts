@@ -19,11 +19,7 @@ export default async function handler(
   const { input } = req.body;
 
   const response = await openai.createCompletion({
-<<<<<<< HEAD
     model: fine_tune_data5,
-=======
-    model: "davinci:ft-personal:data1-2023-01-13-16-33-16",
->>>>>>> parent of a9b81f7 (updating)
     prompt: `${initial_prompt} ${input} ${final_prompt}`,
     max_tokens: 256,
     temperature: 0.21,
