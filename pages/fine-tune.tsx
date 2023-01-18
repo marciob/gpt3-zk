@@ -1,31 +1,96 @@
-import React, { useState } from "react";
+import { Button, Table, Form, Input } from "antd";
+
+import { useEffect } from "react";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 
-const FineTune = () => {
-  const [prompts, setPrompts] = useState([{ prompt: "", completion: "" }]);
+function FineTune() {
+  const [dataSource, setDataSource] = useState([]);
+  const [editingRow, setEditingRow] = useState(null);
+  const [form] = Form.useForm();
 
-  const handlePromptChange = (e, index) => {
-    const newPrompts = [...prompts];
-    newPrompts[index].prompt = e.target.value;
-    setPrompts(newPrompts);
+  useEffect(() => {
+    const data = [];
+    for (let index = 0; index < 7; index++) {
+      data.push({
+        key: `${index}`,
+        name: `Name ${index}`,
+        address: `Address ${index}`,
+      });
+    }
+    setDataSource(data);
+  }, []);
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      render: (text, record) => {
+        if (editingRow === record.key) {
+          return (
+            <Form.Item
+              name="name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your name",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          );
+        } else {
+          return <p>{text}</p>;
+        }
+      },
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      render: (text, record) => {
+        if (editingRow === record.key) {
+          return (
+            <Form.Item name="address">
+              <Input />
+            </Form.Item>
+          );
+        } else {
+          return <p>{text}</p>;
+        }
+      },
+    },
+    {
+      title: "Actions",
+      render: (_, record) => {
+        return (
+          <>
+            <Button
+              type="link"
+              onClick={() => {
+                setEditingRow(record.key);
+                form.setFieldsValue({
+                  name: record.name,
+                  address: record.address,
+                });
+              }}
+            >
+              Edit
+            </Button>
+            <Button type="link" htmlType="submit">
+              Save
+            </Button>
+          </>
+        );
+      },
+    },
+  ];
+  const onFinish = (values) => {
+    const updatedDataSource = [...dataSource];
+    updatedDataSource.splice(editingRow, 1, { ...values, key: editingRow });
+    setDataSource(updatedDataSource);
+    setEditingRow(null);
   };
-
-  const handleCompletionChange = (e, index) => {
-    const newPrompts = [...prompts];
-    newPrompts[index].completion = e.target.value;
-    setPrompts(newPrompts);
-  };
-
-  const addNewPrompt = () => {
-    setPrompts([...prompts, { prompt: "", completion: "" }]);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(prompts);
-  };
-
   return (
     <div className={styles.container}>
       <Sidebar />
@@ -35,50 +100,16 @@ const FineTune = () => {
           Here you can fine-tune the model by providing additional prompts and
           expected completions.
         </p>
-        <form onSubmit={handleSubmit}>
-          {prompts.map((prompt, index) => (
-            <div key={index} className="flex justify-between">
-              <div className="w-1/2">
-                <label>Prompt:</label>
-                <input
-                  type="text"
-                  value={prompt.prompt}
-                  onChange={(e) => handlePromptChange(e, index)}
-                  className="border-2 border-gray-300 bg-white p-4 rounded-lg text-sm focus:outline-none resize-none"
-                />
-              </div>
-              <div className="w-1/2">
-                <label>Completion:</label>
-                <input
-                  type="text"
-                  value={prompt.completion}
-                  onChange={(e) => handleCompletionChange(e, index)}
-                  className="border-2 border-gray-300 bg-white p-4 rounded-lg text-sm focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-          ))}
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={addNewPrompt}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Add new prompt
-            </button>
-          </div>
-          <div className="text-center pt-4">
-            <button
-              type="submit"
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Send
-            </button>
-          </div>
-        </form>
+        <div>
+          <Table
+            className="w-1/2 mx-auto mt-5"
+            columns={columns}
+            dataSource={dataSource}
+          ></Table>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default FineTune;
