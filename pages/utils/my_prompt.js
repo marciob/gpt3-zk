@@ -21,8 +21,6 @@ A: The Semaphore protocol can be used in several ways. It can be used to create 
 
 ###
 
-=======
->>>>>>> parent of a9b81f7 (updating)
 Q: `;
 
 export const final_prompt = "A: ";
