@@ -11,3 +11,6 @@ openai api fine_tunes.create -t <TRAIN_FILE_ID_OR_PATH> -m <BASE_MODEL> --suffix
 
 resumes the fine-tuning stream if it stops for some reason
 openai api fine_tunes.follow -i <YOUR_FINE_TUNE_JOB_ID>
+
+List all created fine-tunes
+openai api fine_tunes.list

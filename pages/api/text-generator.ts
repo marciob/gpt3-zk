@@ -8,7 +8,7 @@ type Data = {
   result: any;
 };
 
-const fine_tune_data5 = "davinci:ft-personal:data5-2023-01-14-01-38-36";
+const fine_tune_data5 = "davinci:ft-personal-2023-01-18-01-40-52";
 
 const openai = new OpenAIApi(configuration);
 
