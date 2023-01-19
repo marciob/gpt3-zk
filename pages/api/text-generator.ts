@@ -25,7 +25,7 @@ export default async function handler(
     case "Semaphore":
       fine_tune_model = fine_tune_data5;
       break;
-    case "Unirep":
+    case "UniRep":
       fine_tune_model = fine_tune_data6;
       break;
     default:

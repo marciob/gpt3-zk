@@ -14,3 +14,6 @@ openai api fine_tunes.follow -i <YOUR_FINE_TUNE_JOB_ID>
 
 List all created fine-tunes
 openai api fine_tunes.list
+
+set API Key environment
+export OPENAI_API_KEY="<OPENAI_API_KEY>"

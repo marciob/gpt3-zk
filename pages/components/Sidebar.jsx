@@ -13,19 +13,19 @@ const Sidebar = () => {
         <div className="p-4 text-white">
           <p className="text-lg font-medium">
             <button className="text-white" onClick={() => setIsOpen(!isOpen)}>
-              Protocols
+              Ask ZK protocols
             </button>
           </p>
           {isOpen && (
             <div className="p-4">
               <Link href="/" onClick={() => setSelectedModel("Semaphore")}>
-                <p className="block py-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
+                <p className="block py-2 pl-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
                   Semaphore
                 </p>
               </Link>
-              <Link href="/" onClick={() => setSelectedModel("Unirep")}>
-                <p className="block py-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
-                  Unirep
+              <Link href="/" onClick={() => setSelectedModel("UniRep")}>
+                <p className="block py-2 pl-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
+                  UniRep
                 </p>
               </Link>
             </div>
@@ -33,7 +33,7 @@ const Sidebar = () => {
         </div>
         <div className="p-4">
           <Link href="/fine-tune">
-            <p className="block py-2 ml-2 text-base  font-medium text-white hover:bg-gray-700">
+            <p className="block py-2 pl-2 ml-2 text-base  font-medium text-white hover:bg-gray-700">
               Train me
             </p>
           </Link>
