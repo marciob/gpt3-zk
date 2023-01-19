@@ -36,7 +36,7 @@ const FineTune = () => {
     <div className={styles.container}>
       <Sidebar />
       <div className="bg-white p-4 lg:col-span-1 text-center">
-        <h1 className="text-2xl font-medium">Fine Tune</h1>
+        <h1 className="text-2xl font-medium">Fine-Tuning</h1>
         <p className="text-lg mb-5">
           Improve the fine-tune model by providing additional prompts and
           expected completions.

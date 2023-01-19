@@ -83,7 +83,7 @@ export default function Home() {
               onChange={(e) => setInput(e.target.value)}
               value={input}
               className="w-full border-2 border-gray-300 bg-white p-4 rounded-lg text-sm focus:outline-none resize-none"
-              placeholder="Ask a question about Zero Knowledge proof"
+              placeholder={`Ask your question`}
             />
             {/* charecter limit text in the bottom right side of textarea */}
             <div
@@ -99,14 +99,14 @@ export default function Home() {
             onClick={submit}
             className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounder"
           >
-            {/* {loading ? "loading..." : "Generate"} */}
+            {/* {loading ? "loading..." : "Ask"} */}
             {loading ? (
               <div className="flex justify-center items-center gap-4">
                 <p>Loading...</p>
                 <MoonLoader size={20} />
               </div>
             ) : (
-              "Generate"
+              "Ask"
             )}
           </button>
           {/* output field with the results (shown only when "suggestion" is true) */}
