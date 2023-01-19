@@ -1,7 +1,12 @@
 import React, { useState } from "react";
+import Link from "next/link";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [selectedModel, setSelectedModel] = useState("Semaphore");
+
+  Sidebar.selectedModel = selectedModel;
+
   return (
     <div className="bg-gray-800 h-screen w-64 fixed top-0 left-0">
       <nav className="flex flex-col h-full">
@@ -13,28 +18,25 @@ const Sidebar = () => {
           </p>
           {isOpen && (
             <div className="p-4">
-              <a
-                href="/"
-                className="block py-2 pl-2 text-base font-medium text-white hover:bg-gray-700"
-              >
-                Semaphore
-              </a>
-              <a
-                href="#"
-                className="block py-2 pl-2 text-base font-medium text-white hover:bg-gray-700"
-              >
-                Unirep
-              </a>
+              <Link href="/" onClick={() => setSelectedModel("Semaphore")}>
+                <p className="block py-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
+                  Semaphore
+                </p>
+              </Link>
+              <Link href="/" onClick={() => setSelectedModel("Unirep")}>
+                <p className="block py-2 ml-2 text-base font-medium text-white hover:bg-gray-700">
+                  Unirep
+                </p>
+              </Link>
             </div>
           )}
         </div>
         <div className="p-4">
-          <a
-            href="/fine-tune"
-            className="block py-2 pl-2 text-base  font-medium text-white hover:bg-gray-700"
-          >
-            Train me
-          </a>
+          <Link href="/fine-tune">
+            <p className="block py-2 ml-2 text-base  font-medium text-white hover:bg-gray-700">
+              Train me
+            </p>
+          </Link>
         </div>
       </nav>
     </div>

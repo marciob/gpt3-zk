@@ -9,6 +9,7 @@ type Data = {
 };
 
 const fine_tune_data5 = "davinci:ft-personal-2023-01-18-01-40-52";
+const fine_tune_data6 = "";
 
 const openai = new OpenAIApi(configuration);
 
@@ -16,10 +17,23 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { input } = req.body;
+  const { input, selectedModel } = req.body;
+
+  let fine_tune_model = "";
+
+  switch (selectedModel) {
+    case "Semaphore":
+      fine_tune_model = fine_tune_data5;
+      break;
+    case "Unirep":
+      fine_tune_model = fine_tune_data6;
+      break;
+    default:
+      fine_tune_model = fine_tune_data5;
+  }
 
   const response = await openai.createCompletion({
-    model: fine_tune_data5,
+    model: fine_tune_model,
     prompt: `${initial_prompt} ${input} ${final_prompt}`,
     max_tokens: 256,
     temperature: 0.21,

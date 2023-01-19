@@ -17,6 +17,8 @@ export default function Home() {
   const [suggestion, setSuggestion] = useState("");
   const [loading, setLoading] = useState(false);
 
+  let selectedModel = Sidebar.selectedModel;
+
   useEffect(() => {
     if (input.length <= 100) {
       setError(false);
@@ -40,7 +42,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, selectedModel }),
       });
       const suggestion = await res.json();
 
@@ -63,7 +65,9 @@ export default function Home() {
       <Sidebar />
       <div className="max-w-7x1 mx-auto py-12">
         <h2 className="text-2xl font-bold text-center pb-2">
-          Ask me anything about Semaphore
+          {`Ask me anything about ${
+            selectedModel ? selectedModel : "Semaphore"
+          }`}
         </h2>
         {/* input field */}
         <div className="flex flex-col gap-2 justify-center w-1/3 mx-auto">
@@ -93,7 +97,7 @@ export default function Home() {
           <button
             type="button"
             onClick={submit}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounder"
+            className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounder"
           >
             {/* {loading ? "loading..." : "Generate"} */}
             {loading ? (
