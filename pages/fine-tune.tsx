@@ -11,6 +11,14 @@ const FineTune = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("InputFields", inputFields);
+    const newInputFields = inputFields.map((field) => {
+      return {
+        ...field,
+        prompt: "",
+        completion: "",
+      };
+    });
+    setInputFields(newInputFields);
   };
 
   const handleChangeInput = (id, event) => {
@@ -25,6 +33,10 @@ const FineTune = () => {
   };
 
   const handleAddFields = () => {
+    if (inputFields.length >= 3) {
+      // return without adding a new field
+      return;
+    }
     setInputFields([
       ...inputFields,
       { id: uuidv4(), prompt: "", completion: "" },
@@ -76,9 +88,24 @@ const FineTune = () => {
                 </button>
               </div>
             ))}
+            {inputFields.length >= 3 ? (
+              <div
+                className="bg-gray-100 border-t border-b border-gray-200 text-gray-700 px-4 py-3 mb-3"
+                role="alert"
+              >
+                <p className="text-sm">
+                  You can send up to 3 prompts and completions at once.
+                </p>
+              </div>
+            ) : null}
             <button
-              className="bg-gray-400 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded mr-4"
+              className={` text-white font-bold py-2 px-4 rounded mr-4 ${
+                inputFields.length >= 3
+                  ? "bg-gray-200 hover:bg-gray-200"
+                  : "bg-gray-400 hover:bg-gray-600"
+              }`}
               onClick={handleAddFields}
+              disabled={inputFields.length >= 3}
             >
               +
             </button>

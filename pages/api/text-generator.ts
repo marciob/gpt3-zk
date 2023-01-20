@@ -2,14 +2,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { configuration } from "../utils/constants";
 import { OpenAIApi } from "openai";
-import { initial_prompt, final_prompt } from "../utils/my_prompt";
+import {
+  initial_prompt_semaphore,
+  initial_prompt_unirep,
+  final_prompt,
+} from "../utils/my_prompt";
 
 type Data = {
   result: any;
 };
 
 const fine_tune_data5 = "davinci:ft-personal-2023-01-18-01-40-52";
-const fine_tune_data6 = "";
+const fine_tune_data6 = "davinci:ft-personal-2023-01-20-00-06-54";
 
 const openai = new OpenAIApi(configuration);
 
@@ -20,16 +24,20 @@ export default async function handler(
   const { input, selectedModel } = req.body;
 
   let fine_tune_model = "";
+  let initial_prompt = "";
 
   switch (selectedModel) {
     case "Semaphore":
       fine_tune_model = fine_tune_data5;
+      initial_prompt = initial_prompt_semaphore;
       break;
     case "UniRep":
       fine_tune_model = fine_tune_data6;
+      initial_prompt = initial_prompt_unirep;
       break;
     default:
       fine_tune_model = fine_tune_data5;
+      initial_prompt = initial_prompt_semaphore;
   }
 
   const response = await openai.createCompletion({
