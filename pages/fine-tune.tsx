@@ -7,10 +7,12 @@ const FineTune = () => {
   const [inputFields, setInputFields] = useState([
     { id: uuidv4(), prompt: "", completion: "" },
   ]);
+  const [submittedInputs, setSubmittedInputs] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("InputFields", inputFields);
+    setSubmittedInputs([...submittedInputs, ...inputFields]);
     const newInputFields = inputFields.map((field) => {
       return {
         ...field,
@@ -18,7 +20,7 @@ const FineTune = () => {
         completion: "",
       };
     });
-    setInputFields(newInputFields);
+    setInputFields(newInputFields.reverse());
   };
 
   const handleChangeInput = (id, event) => {
@@ -32,7 +34,8 @@ const FineTune = () => {
     setInputFields(newInputFields);
   };
 
-  const handleAddFields = () => {
+  const handleAddFields = (e) => {
+    e.preventDefault();
     if (inputFields.length >= 3) {
       // return without adding a new field
       return;
@@ -116,6 +119,20 @@ const FineTune = () => {
               Send
             </button>
           </form>
+          <div className="my-5">
+            {/* Render the stored inputs */}
+            {submittedInputs.map((input) => (
+              <div
+                key={input.id}
+                className="bg-white p-2 rounded-lg shadow-md my-2"
+              >
+                <h2 className="text-lg font-medium ">Prompt:</h2>
+                <p className="text-gray-700">{input.prompt}</p>
+                <h2 className="text-lg font-medium my-2">Completion:</h2>
+                <p className="text-gray-700">{input.completion}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
