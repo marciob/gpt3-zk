@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { v4 as uuidv4 } from "uuid";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const FineTune = () => {
   const [inputFields, setInputFields] = useState([
@@ -59,6 +60,12 @@ const FineTune = () => {
     <div className={styles.container}>
       <div className="mt-10">
         <Sidebar />
+
+        {/* Connecton Button created with Rainbowkit */}
+        <div className="flex justify-end mr-10">
+          <ConnectButton />
+        </div>
+
         <div className="bg-white p-4 lg:col-span-1 text-center">
           <h1 className="text-2xl font-medium">Fine-Tune</h1>
           <p className="text-lg mb-5">
