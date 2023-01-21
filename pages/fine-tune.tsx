@@ -3,8 +3,13 @@ import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { v4 as uuidv4 } from "uuid";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Identity } from "@semaphore-protocol/identity";
 
 const FineTune = () => {
+  // creating Semaphore ID
+  const { trapdoor, nullifier, commitment } = new Identity();
+  const identity = new Identity("hey it's a beautiful day");
+
   const [inputFields, setInputFields] = useState([
     { id: uuidv4(), prompt: "", completion: "" },
   ]);
@@ -67,6 +72,20 @@ const FineTune = () => {
         </div>
 
         <div className="bg-white p-4 lg:col-span-1 text-center">
+          <button
+            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg mx-auto hover:bg-gray-600 mb-10 "
+            onClick={() =>
+              console.log(
+                "identity: ",
+                identity,
+                "Identity to String: ",
+                identity.toString()
+              )
+            }
+          >
+            Generate ID off-chain
+          </button>
+
           <h1 className="text-2xl font-medium">Fine-Tune</h1>
           <p className="text-lg mb-5">
             Improve the fine-tune model by providing additional prompts and
