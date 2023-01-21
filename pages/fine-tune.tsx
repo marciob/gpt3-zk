@@ -124,12 +124,22 @@ const FineTune = () => {
             {submittedInputs.map((input) => (
               <div
                 key={input.id}
-                className="bg-white p-2 rounded-lg shadow-md my-2"
+                className="bg-white p-4 rounded-lg shadow-md my-4 flex"
               >
-                <h2 className="text-lg font-medium ">Prompt:</h2>
-                <p className="text-gray-700">{input.prompt}</p>
-                <h2 className="text-lg font-medium my-2">Completion:</h2>
-                <p className="text-gray-700">{input.completion}</p>
+                <div className="w-3/4">
+                  <h2 className="text-lg font-medium mb-2">Prompt:</h2>
+                  <p className="text-gray-700">{input.prompt}</p>
+                  <h2 className="text-lg font-medium my-4">Completion:</h2>
+                  <p className="text-gray-700">{input.completion}</p>
+                </div>
+                <div className="w-1/4 justify-around">
+                  <button className="bg-green-500 text-white py-1 px-2 rounded-lg h-10">
+                    Good
+                  </button>
+                  <button className="bg-red-500 text-white py-1 px-2 rounded-lg h-10 ml-2">
+                    Bad
+                  </button>
+                </div>
               </div>
             ))}
           </div>
