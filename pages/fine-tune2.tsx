@@ -161,7 +161,7 @@ const FineTune = () => {
         signer
       );
       await semaphoreContract.createGroup(
-        21,
+        3,
         20,
         0,
         "0x95a548A77f41d64f5F0d6905f8F9CD3aeFe972A9"
@@ -174,26 +174,25 @@ const FineTune = () => {
   const generateProofOffchain = async () => {
     console.log("generateProofOffchain clicked: ");
     try {
-      const id = new Identity();
       const group = await new Group(20);
 
       console.log("start group: ", group.root);
 
       //adding member to group
-      group.addMember(id.getCommitment());
+      group.addMember(identityCommitment);
 
       const externalNullifier = group.root;
 
-      console.log("identity: ", id);
-      console.log("group: ", group);
-      console.log("externalNullifier: ", externalNullifier);
-      console.log("signal: ", signal);
+      // console.log("identity: ", identity);
+      console.log("group: ", group.root);
+      // console.log("externalNullifier: ", externalNullifier);
+      // console.log("signal: ", signal);
 
       const fullProof = await generateProof(
-        id,
+        identity,
         group,
         externalNullifier,
-        "10",
+        signal,
         {
           zkeyFilePath: "./semaphore.zkey",
           wasmFilePath: "./semaphore.wasm",
