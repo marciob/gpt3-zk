@@ -23,6 +23,10 @@ const FineTune = () => {
   const [nullifier, setNullifier] = useState("");
   const [identityCommitment, setIdentityCommitment] = useState("");
 
+  const [group1, setGroup1] = useState("");
+  const [group2, setGroup2] = useState("");
+
+  // const semaphoreContract = "0x5259d32659F1806ccAfcE593ED5a89eBAb85262f"
   const semaphoreContract = "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611";
 
   const handleSubmit = (e) => {
@@ -112,6 +116,20 @@ const FineTune = () => {
     setIdentityCommitment(newIdentityCommitment);
   };
 
+  const handleCreateGroupOffchain = async () => {
+    console.log("CreateGroupOffchain clicked");
+
+    const group = new Group();
+    console.log(group.root);
+
+    //adding member to group
+    group.addMember(identityCommitment);
+
+    setGroup1(group);
+
+    console.log("group1: ", group1.root);
+  };
+
   useEffect(() => {
     if (window.ethereum) {
       setProvider(window.ethereum);
@@ -139,6 +157,14 @@ const FineTune = () => {
             onClick={handleCreateId}
           >
             CreateId off-chain
+          </button>
+        </div>
+        <div className="flex justify-center ">
+          <button
+            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={handleCreateGroupOffchain}
+          >
+            CreateGroup off-chain
           </button>
         </div>
         <div className="bg-white p-4 lg:col-span-1 text-center">
