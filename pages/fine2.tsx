@@ -9,6 +9,8 @@ const FineTune = () => {
   ]);
   const [submittedInputs, setSubmittedInputs] = useState([]);
 
+  const semaphoreContract = "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611";
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("InputFields", inputFields);

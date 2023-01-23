@@ -3,6 +3,11 @@ import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { v4 as uuidv4 } from "uuid";
 import { ethers } from "ethers";
+import { Identity } from "@semaphore-protocol/identity";
+import { Group } from "@semaphore-protocol/group";
+const { generateProof } = require("@semaphore-protocol/proof");
+const { verifyProof } = require("@semaphore-protocol/proof");
+const { packToSolidityProof } = require("@semaphore-protocol/proof");
 
 const FineTune = () => {
   const [inputFields, setInputFields] = useState([
@@ -11,8 +16,14 @@ const FineTune = () => {
   const [submittedInputs, setSubmittedInputs] = useState([]);
 
   const [provider, setProvider] = useState(null);
-
   const [isConnected, setIsConnected] = useState(false);
+
+  const [identity, setIdentity] = useState("");
+  const [trapdoor, setTrapdoor] = useState("");
+  const [nullifier, setNullifier] = useState("");
+  const [identityCommitment, setIdentityCommitment] = useState("");
+
+  const semaphoreContract = "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611";
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,6 +92,26 @@ const FineTune = () => {
     }
   };
 
+  const handleCreateId = () => {
+    console.log("createId clicked");
+
+    const newIdentity = new Identity();
+    const newTrapdoor = newIdentity.getTrapdoor();
+    const newNullifier = newIdentity.getNullifier();
+    const newIdentityCommitment = newIdentity.generateCommitment();
+    // const newIdentityCommitment = newIdentity.getCommitment();
+
+    console.log("newIdentity: ", newIdentity);
+    console.log("newTrapdoor: ", newTrapdoor);
+    console.log("newNullifier: ", newNullifier);
+    console.log("newIdentityCommitment: ", newIdentityCommitment);
+
+    setIdentity(newIdentity);
+    setTrapdoor(newTrapdoor);
+    setNullifier(newNullifier);
+    setIdentityCommitment(newIdentityCommitment);
+  };
+
   useEffect(() => {
     if (window.ethereum) {
       setProvider(window.ethereum);
@@ -99,6 +130,15 @@ const FineTune = () => {
             onClick={handleConnectWallet}
           >
             {isConnected ? "Connected" : "Connect Wallet"}
+          </button>
+        </div>
+
+        <div className="flex justify-center ">
+          <button
+            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={handleCreateId}
+          >
+            CreateId off-chain
           </button>
         </div>
         <div className="bg-white p-4 lg:col-span-1 text-center">
