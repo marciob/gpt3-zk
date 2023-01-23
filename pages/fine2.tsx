@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { v4 as uuidv4 } from "uuid";
-import { ethers } from "ethers";
 
 const FineTune = () => {
   const [inputFields, setInputFields] = useState([
     { id: uuidv4(), prompt: "", completion: "" },
   ]);
   const [submittedInputs, setSubmittedInputs] = useState([]);
-
-  const [provider, setProvider] = useState(null);
-
-  const [isConnected, setIsConnected] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -60,47 +55,10 @@ const FineTune = () => {
     setInputFields(values);
   };
 
-  const handleConnectWallet = async () => {
-    if (provider) {
-      try {
-        setIsConnected(true);
-
-        const provider = new ethers.providers.Web3Provider(
-          window.ethereum,
-          "any"
-        );
-        // Prompt user for account connections
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        console.log("Account connected: ", await signer.getAddress());
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      console.log("Please install Metamask to connect to your wallet.");
-    }
-  };
-
-  useEffect(() => {
-    if (window.ethereum) {
-      setProvider(window.ethereum);
-    }
-  }, []);
-
   return (
     <div className={styles.container}>
       <div className="mt-10">
         <Sidebar />
-
-        {/* Connecton Button */}
-        <div className="flex justify-end mr-10">
-          <button
-            className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-600 mb-10 block"
-            onClick={handleConnectWallet}
-          >
-            {isConnected ? "Connected" : "Connect Wallet"}
-          </button>
-        </div>
         <div className="bg-white p-4 lg:col-span-1 text-center">
           <h1 className="text-2xl font-medium">Fine-Tune</h1>
           <p className="text-lg mb-5">
