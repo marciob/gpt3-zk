@@ -46,6 +46,7 @@ const FineTune = () => {
   // const semaphoreContractAddress = "0x5259d32659F1806ccAfcE593ED5a89eBAb85262f"
   const semaphoreContractAddress = "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611";
 
+  //prompt and completion submits
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("InputFields", inputFields);
@@ -60,6 +61,7 @@ const FineTune = () => {
     setInputFields(newInputFields.reverse());
   };
 
+  //helper for prompt and completion submits
   const handleChangeInput = (id, event) => {
     const newInputFields = inputFields.map((i) => {
       if (id === i.id) {
@@ -71,6 +73,7 @@ const FineTune = () => {
     setInputFields(newInputFields);
   };
 
+  //adds more prompt and completion inputs fields until limit of 3
   const handleAddFields = (e) => {
     e.preventDefault();
     if (inputFields.length >= 3) {
@@ -83,6 +86,7 @@ const FineTune = () => {
     ]);
   };
 
+  //remove prompt and completion input fields
   const handleRemoveFields = (id) => {
     const values = [...inputFields];
     values.splice(
@@ -119,8 +123,7 @@ const FineTune = () => {
     const newIdentity = new Identity();
     const newTrapdoor = newIdentity.getTrapdoor();
     const newNullifier = newIdentity.getNullifier();
-    const newIdentityCommitment = newIdentity.generateCommitment();
-    // const newIdentityCommitment = newIdentity.getCommitment();
+    const newIdentityCommitment = newIdentity.getCommitment();
 
     console.log("newIdentity: ", newIdentity);
     console.log("newTrapdoor: ", newTrapdoor);
