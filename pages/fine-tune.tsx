@@ -302,7 +302,7 @@ const FineTune = () => {
 
   return (
     <div className={styles.container}>
-      <div className="mt-10">
+      <div className="mt-10 mb-72">
         <Sidebar />
 
         {/* Connecton Button */}
@@ -429,10 +429,10 @@ const FineTune = () => {
             {/* Render the stored inputs */}
             {submittedInputs.map((input) => (
               <div
-                key={input.id}
+                key={input.id + Math.random()}
                 className="bg-white p-4 rounded-lg shadow-md my-4 flex  mx-80 justify-end"
               >
-                <div className="w-2/4  ml-10 mx-30  ">
+                <div className="w-2/4 pl-24  ">
                   <h2 className="text-lg font-medium mb-2">Prompt:</h2>
                   <p className="text-gray-700">{input.prompt}</p>
                   <h2 className="text-lg font-medium my-4 ">Completion:</h2>
@@ -451,6 +451,7 @@ const FineTune = () => {
                   >
                     Bad
                   </button>
+                  {console.log("input id key type: ", input.id)}
                 </div>
                 {/* Modal */}
                 {isModalOpen && (
