@@ -29,9 +29,9 @@ const FineTune = () => {
 
   const [group1Proof, setGroup1Proof] = useState("");
   const [group1SolidityProof, setGroup1SolidityProof] = useState("");
-  const [group1ExternalNullifier, setGroup1ExternalNullifier] = useState("");
+  // const [group1ExternalNullifier, setGroup1ExternalNullifier] = useState("");
 
-  const [groupId, setGroupId] = useState(133);
+  const [groupId, setGroupId] = useState(145);
   const [verifyOnChainTx, setVerifyOnChainTx] = useState("");
 
   const [signal, setSignal] = useState("");
@@ -53,6 +53,12 @@ const FineTune = () => {
 
   // const semaphoreContractAddress = "0x5259d32659F1806ccAfcE593ED5a89eBAb85262f"
   const semaphoreContractAddress = "0x99aAb52e60f40AAC0BFE53e003De847bBDbC9611";
+
+  //external nullifier
+  //each votation has its own external nullifier
+  //it's like an Id for each votation
+  //used to prevent double-signaling on that votation
+  const externalNullifier = 1001;
 
   //prompt and completion submits
   const handleSubmit = (e) => {
@@ -192,7 +198,7 @@ const FineTune = () => {
     }
   };
 
-  const generateProofOffchain = async () => {
+  const generateProofOffchain = async (voting) => {
     console.log("generateProofOffchain clicked: ");
     try {
       //adding member to group
@@ -201,15 +207,12 @@ const FineTune = () => {
       //updating group state with the new member
       // setGroup1(adding_member);
 
-      //external nullifier
-      const externalNullifier = group1.root;
-
       // generating proof
       const fullProof = await generateProof(
         identity,
         group1,
         externalNullifier,
-        signal,
+        voting,
         {
           zkeyFilePath: "./semaphore.zkey",
           wasmFilePath: "./semaphore.wasm",
@@ -220,13 +223,15 @@ const FineTune = () => {
 
       setGroup1Proof(fullProof);
       setGroup1SolidityProof(solidityProof);
-      setGroup1ExternalNullifier(externalNullifier);
+      // setGroup1ExternalNullifier(externalNullifier);
 
       console.log("proof generated");
       console.log("fullproof :", fullProof);
       console.log("proof signal :", fullProof.publicSignals);
       console.log("solidity proof :", solidityProof);
       console.log("external nullifier :", externalNullifier);
+
+      console.log("voted: ", voting);
     } catch (error) {
       console.log(error);
     }
@@ -247,7 +252,7 @@ const FineTune = () => {
     try {
       console.log("verifyProofOnchain clicked");
 
-      const externalNullifier = group1ExternalNullifier;
+      // const externalNullifier = group1ExternalNullifier;
 
       const fullProof2 = await generateProof(
         identity,
@@ -473,7 +478,7 @@ const FineTune = () => {
                         <div className="flex justify-center">
                           <button
                             className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-600 mb-10 block"
-                            onClick={generateProofOffchain}
+                            onClick={() => generateProofOffchain(signal)}
                           >
                             Generate proof
                           </button>
