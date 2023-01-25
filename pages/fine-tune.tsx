@@ -27,16 +27,24 @@ const FineTune = () => {
   const [group1, setGroup1] = useState("");
   const [group2, setGroup2] = useState("");
 
+  const [group1Proof, setGroup1Proof] = useState("");
+  const [group1SolidityProof, setGroup1SolidityProof] = useState("");
+  const [group1ExternalNullifier, setGroup1ExternalNullifier] = useState("");
+
+  const [groupId, setGroupId] = useState(133);
+  const [verifyOnChainTx, setVerifyOnChainTx] = useState("");
+
+  const [signal, setSignal] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const signal = "good";
+  const groupAdmin = "0x95a548A77f41d64f5F0d6905f8F9CD3aeFe972A9";
 
-  const handleGoodButtonClick = () => {
+  const handleVoteButtonClick = (vote) => {
     setIsModalOpen(true);
-  };
+    setSignal(vote);
 
-  const handleBadButtonClick = () => {
-    setIsModalOpen(true);
+    console.log("vote: ", vote);
   };
 
   const handleModalClose = () => {
@@ -117,18 +125,25 @@ const FineTune = () => {
     }
   };
 
+  const getStates = () => {
+    console.log("identity: ", identity);
+    console.log("group1: ", group1);
+    console.log("group id: ", groupId);
+    console.log("identityCommitment: ", identityCommitment);
+  };
+
   const handleCreateId = () => {
     console.log("createId clicked");
 
-    const newIdentity = new Identity();
-    const newTrapdoor = newIdentity.getTrapdoor();
-    const newNullifier = newIdentity.getNullifier();
-    const newIdentityCommitment = newIdentity.getCommitment();
+    const newIdentity = new Identity("hello"); // create a new Semaphore ID (commitment, trapdoor and nullifier)
+    const newTrapdoor = newIdentity.getTrapdoor(); // secret value, used to encrypt a proof and authenticate the user identity
+    const newNullifier = newIdentity.getNullifier(); // used to prevent double-signaling (created by hashing the trapdoor + external nulifier value)
+    const newIdentityCommitment = newIdentity.getCommitment(); // public value used to identify the user
 
-    console.log("newIdentity: ", newIdentity);
-    console.log("newTrapdoor: ", newTrapdoor);
-    console.log("newNullifier: ", newNullifier);
-    console.log("newIdentityCommitment: ", newIdentityCommitment);
+    // console.log("newIdentity (complete): ", newIdentity);
+    // console.log("newTrapdoor: ", newTrapdoor);
+    // console.log("newNullifier: ", newNullifier);
+    // console.log("newIdentityCommitment: ", newIdentityCommitment);
 
     setIdentity(newIdentity);
     setTrapdoor(newTrapdoor);
@@ -139,20 +154,14 @@ const FineTune = () => {
   const handleCreateGroupOffchain = async () => {
     console.log("CreateGroupOffchain clicked");
 
-    const group = await new Group(20);
+    const group = new Group();
     console.log("group root: ", group.root);
 
-    //adding member to group
-    group.addMember(identityCommitment);
-
     setGroup1(group);
-
-    console.log("group1 root: ", group.root);
   };
 
   const handleCreateGroupOnchain = async () => {
     console.log("handleCreateGroupOnchain clicked");
-
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
@@ -163,12 +172,21 @@ const FineTune = () => {
         SemaphoreAbi,
         signer
       );
-      await semaphoreContract.createGroup(
-        21,
-        20,
-        0,
-        "0x95a548A77f41d64f5F0d6905f8F9CD3aeFe972A9"
+
+      let tx1 = await semaphoreContract.createGroup(groupId, 20, 0, groupAdmin);
+      tx1 = await tx1.wait();
+
+      console.log("Create Group: ", tx1);
+      console.log("groupID: ", groupId);
+      console.log("identityCommitment: ", identityCommitment);
+
+      const addMember = await semaphoreContract.addMember(
+        groupId,
+        identityCommitment
       );
+
+      const tx2 = await addMember.wait();
+      console.log("tx2 hash: ", tx2.transactionHash);
     } catch (error) {
       console.log("error: ", error);
     }
@@ -177,33 +195,102 @@ const FineTune = () => {
   const generateProofOffchain = async () => {
     console.log("generateProofOffchain clicked: ");
     try {
-      const id = new Identity();
-      const group = await new Group(20);
-
-      console.log("start group: ", group.root);
-
       //adding member to group
-      group.addMember(id.getCommitment());
+      const adding_member = await group1.addMember(identity.getCommitment());
 
-      const externalNullifier = group.root;
+      //updating group state with the new member
+      // setGroup1(adding_member);
 
-      console.log("identity: ", id);
-      console.log("group: ", group);
-      console.log("externalNullifier: ", externalNullifier);
-      console.log("signal: ", signal);
+      //external nullifier
+      const externalNullifier = group1.root;
 
+      // generating proof
       const fullProof = await generateProof(
-        id,
-        group,
+        identity,
+        group1,
         externalNullifier,
-        "10",
+        signal,
         {
           zkeyFilePath: "./semaphore.zkey",
           wasmFilePath: "./semaphore.wasm",
         }
       );
+
+      const solidityProof = packToSolidityProof(fullProof.proof);
+
+      setGroup1Proof(fullProof);
+      setGroup1SolidityProof(solidityProof);
+      setGroup1ExternalNullifier(externalNullifier);
+
+      console.log("proof generated");
+      console.log("fullproof :", fullProof);
+      console.log("proof signal :", fullProof.publicSignals);
+      console.log("solidity proof :", solidityProof);
+      console.log("external nullifier :", externalNullifier);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  //used to convert the signal to pass into verifyProof onchain
+  const convertToBytes32 = async (data) => {
+    try {
+      const signalBytes32 = ethers.utils.formatBytes32String(data);
+
+      return signalBytes32;
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const verifyProofOnchain = async () => {
+    try {
+      console.log("verifyProofOnchain clicked");
+
+      const externalNullifier = group1ExternalNullifier;
+
+      const fullProof2 = await generateProof(
+        identity,
+        group1,
+        externalNullifier,
+        signal,
+        {
+          zkeyFilePath: "./semaphore.zkey",
+          wasmFilePath: "./semaphore.wasm",
+        }
+      );
+
+      const { nullifierHash } = fullProof2.publicSignals;
+      const solidityProof2 = packToSolidityProof(fullProof2.proof);
+      console.log(solidityProof2);
+
+      const signalBytes32 = await convertToBytes32(signal);
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+
+      const semaphoreContract = new ethers.Contract(
+        semaphoreContractAddress,
+        SemaphoreAbi,
+        signer
+      );
+
+      const checkMembership = await semaphoreContract.verifyProof(
+        groupId,
+        signalBytes32,
+        nullifierHash,
+        externalNullifier,
+        solidityProof2,
+        { gasLimit: 1500000 }
+      );
+
+      const tx = await checkMembership.wait();
+
+      console.log("tx: ", tx);
+      setVerifyOnChainTx(tx.transactionHash);
+    } catch (error) {
+      console.log("error: ", error);
     }
   };
 
@@ -231,11 +318,21 @@ const FineTune = () => {
         <div className="flex justify-center ">
           <button
             className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={getStates}
+          >
+            get states
+          </button>
+        </div>
+
+        <div className="flex justify-center ">
+          <button
+            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
             onClick={handleCreateId}
           >
             CreateId off-chain
           </button>
         </div>
+
         <div className="flex justify-center ">
           <button
             className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
@@ -258,6 +355,14 @@ const FineTune = () => {
             onClick={generateProofOffchain}
           >
             GenerateProof off-chain
+          </button>
+        </div>
+        <div className="flex justify-center ">
+          <button
+            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={verifyProofOnchain}
+          >
+            Verify proof on-chain
           </button>
         </div>
         <div className="bg-white p-4 lg:col-span-1 text-center">
@@ -336,13 +441,13 @@ const FineTune = () => {
                 <div className="w-1/4 justify-around">
                   <button
                     className="bg-green-500 text-white py-1 px-2 rounded-lg h-10"
-                    onClick={handleGoodButtonClick}
+                    onClick={() => handleVoteButtonClick("good")}
                   >
                     Good
                   </button>
                   <button
                     className="bg-red-500 text-white py-1 px-2 rounded-lg h-10 ml-2"
-                    onClick={handleBadButtonClick}
+                    onClick={() => handleVoteButtonClick("bad")}
                   >
                     Bad
                   </button>
