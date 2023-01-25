@@ -31,7 +31,7 @@ const FineTune = () => {
   const [group1SolidityProof, setGroup1SolidityProof] = useState("");
   // const [group1ExternalNullifier, setGroup1ExternalNullifier] = useState("");
 
-  const [groupId, setGroupId] = useState(145);
+  const [groupId, setGroupId] = useState(146);
   const [verifyOnChainTx, setVerifyOnChainTx] = useState("");
 
   const [signal, setSignal] = useState("");
@@ -58,7 +58,7 @@ const FineTune = () => {
   //each votation has its own external nullifier
   //it's like an Id for each votation
   //used to prevent double-signaling on that votation
-  const externalNullifier = 1001;
+  const externalNullifier = 1002;
 
   //prompt and completion submits
   const handleSubmit = (e) => {
@@ -202,7 +202,7 @@ const FineTune = () => {
     console.log("generateProofOffchain clicked: ");
     try {
       //adding member to group
-      const adding_member = await group1.addMember(identity.getCommitment());
+      // const adding_member = await group1.addMember(identity.getCommitment());
 
       //updating group state with the new member
       // setGroup1(adding_member);
@@ -232,6 +232,69 @@ const FineTune = () => {
       console.log("external nullifier :", externalNullifier);
 
       console.log("voted: ", voting);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const generateProofOffchainAndProofOnchain = async (voting) => {
+    console.log("generateProofOffchain clicked: ");
+    try {
+      //  generating proof off-chain
+
+      const fullProof = await generateProof(
+        identity,
+        group1,
+        externalNullifier,
+        voting,
+        {
+          zkeyFilePath: "./semaphore.zkey",
+          wasmFilePath: "./semaphore.wasm",
+        }
+      );
+
+      const solidityProof = packToSolidityProof(fullProof.proof);
+      console.log("solidityProof: ", solidityProof);
+
+      setGroup1Proof(fullProof);
+      setGroup1SolidityProof(solidityProof);
+      // setGroup1ExternalNullifier(externalNullifier);
+
+      console.log("proof generated");
+      console.log("fullproof :", fullProof);
+      console.log("proof signal :", fullProof.publicSignals);
+      console.log("solidity proof :", solidityProof);
+      console.log("external nullifier :", externalNullifier);
+
+      console.log("voted offchain: ", voting);
+
+      //  generate proof on-chain
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+
+      const semaphoreContract = new ethers.Contract(
+        semaphoreContractAddress,
+        SemaphoreAbi,
+        signer
+      );
+
+      const signalBytes32 = await convertToBytes32(signal);
+
+      const { nullifierHash } = fullProof.publicSignals;
+
+      const checkMembership = await semaphoreContract.verifyProof(
+        groupId,
+        signalBytes32,
+        nullifierHash,
+        externalNullifier,
+        solidityProof,
+        { gasLimit: 1500000 }
+      );
+      const tx = await checkMembership.wait();
+
+      console.log("tx from verifyProof: ", tx);
     } catch (error) {
       console.log(error);
     }
@@ -296,6 +359,43 @@ const FineTune = () => {
       setVerifyOnChainTx(tx.transactionHash);
     } catch (error) {
       console.log("error: ", error);
+    }
+  };
+
+  const CreateIdAndOffchainGroupAnd = async () => {
+    try {
+      //create Identity
+      const newIdentity = new Identity("hello"); // create a new Semaphore ID (commitment, trapdoor and nullifier)
+      const newTrapdoor = newIdentity.getTrapdoor(); // secret value, used to encrypt a proof and authenticate the user identity
+      const newNullifier = newIdentity.getNullifier(); // used to prevent double-signaling (created by hashing the trapdoor + external nulifier value)
+      const newIdentityCommitment = newIdentity.getCommitment(); // public value used to identify the user
+
+      console.log("semaphore id created");
+
+      console.log("newIdentity (complete): ", newIdentity);
+      console.log("newTrapdoor: ", newTrapdoor);
+      console.log("newNullifier: ", newNullifier);
+      console.log("newIdentityCommitment: ", newIdentityCommitment);
+
+      setIdentity(newIdentity);
+      setTrapdoor(newTrapdoor);
+      setNullifier(newNullifier);
+      setIdentityCommitment(newIdentityCommitment);
+
+      //  create off-chain group
+      const group = new Group();
+
+      console.log("GroupOffchain created");
+      console.log("group root: ", group.root);
+
+      //adding member to offchain group
+      await group.addMember(identity.getCommitment());
+
+      setGroup1(group);
+
+      console.log("member added to groupOffchain");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -370,6 +470,16 @@ const FineTune = () => {
             Verify proof on-chain
           </button>
         </div>
+
+        <div className="flex justify-center ">
+          <button
+            className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={CreateIdAndOffchainGroupAnd}
+          >
+            all in one (createId + createGroupOffchain)
+          </button>
+        </div>
+
         <div className="bg-white p-4 lg:col-span-1 text-center">
           <h1 className="text-2xl font-medium">Fine-Tune</h1>
           <p className="text-lg mb-5">
@@ -456,7 +566,6 @@ const FineTune = () => {
                   >
                     Bad
                   </button>
-                  {console.log("input id key type: ", input.id)}
                 </div>
                 {/* Modal */}
                 {isModalOpen && (
@@ -478,7 +587,9 @@ const FineTune = () => {
                         <div className="flex justify-center">
                           <button
                             className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-600 mb-10 block"
-                            onClick={() => generateProofOffchain(signal)}
+                            onClick={() =>
+                              generateProofOffchainAndProofOnchain(signal)
+                            }
                           >
                             Generate proof
                           </button>
