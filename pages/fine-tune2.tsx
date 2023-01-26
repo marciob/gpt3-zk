@@ -1,3 +1,5 @@
+// page only for tests
+
 import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";

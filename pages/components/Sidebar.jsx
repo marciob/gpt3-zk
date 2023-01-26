@@ -38,6 +38,13 @@ const Sidebar = () => {
             </p>
           </Link>
         </div>
+        <div className="p-4">
+          <Link href="/stats">
+            <p className="block py-2 pl-2 ml-2 text-base  font-medium text-white hover:bg-gray-700">
+              Help us with stats
+            </p>
+          </Link>
+        </div>
       </nav>
     </div>
   );
