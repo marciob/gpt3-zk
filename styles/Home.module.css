@@ -276,3 +276,8 @@
     transform: rotate(0deg);
   }
 }
+
+.__react_component_tooltip {
+  white-space: pre-wrap;
+  max-width: 300px;
+}

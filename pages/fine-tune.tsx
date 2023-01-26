@@ -6,6 +6,8 @@ import { ethers } from "ethers";
 import { Identity } from "@semaphore-protocol/identity";
 import { Group } from "@semaphore-protocol/group";
 import SemaphoreAbi from "./utils/SemaphoreAbi";
+import { MoonLoader } from "react-spinners";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 const { generateProof } = require("@semaphore-protocol/proof");
 const { verifyProof } = require("@semaphore-protocol/proof");
 const { packToSolidityProof } = require("@semaphore-protocol/proof");
@@ -23,6 +25,7 @@ const FineTune = () => {
   const [trapdoor, setTrapdoor] = useState("");
   const [nullifier, setNullifier] = useState("");
   const [identityCommitment, setIdentityCommitment] = useState("");
+  const [isIdCreated, setIsIdCreated] = useState(false);
 
   const [group1, setGroup1] = useState("");
   const [group2, setGroup2] = useState("");
@@ -32,11 +35,12 @@ const FineTune = () => {
   // const [group1ExternalNullifier, setGroup1ExternalNullifier] = useState("");
 
   const [groupId, setGroupId] = useState(146);
-  const [verifyOnChainTx, setVerifyOnChainTx] = useState("");
+  const [verifiedOnChainTx, setVerifiedOnChainTx] = useState(null);
 
   const [signal, setSignal] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [generateClicked, setGenerateClicked] = useState(null);
 
   const groupAdmin = "0x95a548A77f41d64f5F0d6905f8F9CD3aeFe972A9";
 
@@ -45,6 +49,7 @@ const FineTune = () => {
     setSignal(vote);
 
     console.log("vote: ", vote);
+    console.log("generateClicked: ", generateClicked);
   };
 
   const handleModalClose = () => {
@@ -58,7 +63,7 @@ const FineTune = () => {
   //each votation has its own external nullifier
   //it's like an Id for each votation
   //used to prevent double-signaling on that votation
-  const externalNullifier = 1002;
+  const externalNullifier = 1008;
 
   //prompt and completion submits
   const handleSubmit = (e) => {
@@ -239,8 +244,9 @@ const FineTune = () => {
 
   const generateProofOffchainAndProofOnchain = async (voting) => {
     console.log("generateProofOffchain clicked: ");
+    setGenerateClicked(true);
     try {
-      //  generating proof off-chain
+      //  *** generating proof off-chain ***
 
       const fullProof = await generateProof(
         identity,
@@ -258,7 +264,6 @@ const FineTune = () => {
 
       setGroup1Proof(fullProof);
       setGroup1SolidityProof(solidityProof);
-      // setGroup1ExternalNullifier(externalNullifier);
 
       console.log("proof generated");
       console.log("fullproof :", fullProof);
@@ -268,7 +273,7 @@ const FineTune = () => {
 
       console.log("voted offchain: ", voting);
 
-      //  generate proof on-chain
+      // *** generate proof on-chain ***
 
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
@@ -294,9 +299,13 @@ const FineTune = () => {
       );
       const tx = await checkMembership.wait();
 
+      setVerifiedOnChainTx(tx.transactionHash);
+
       console.log("tx from verifyProof: ", tx);
+      setGenerateClicked(false);
     } catch (error) {
       console.log(error);
+      setGenerateClicked(false);
     }
   };
 
@@ -356,19 +365,19 @@ const FineTune = () => {
       const tx = await checkMembership.wait();
 
       console.log("tx: ", tx);
-      setVerifyOnChainTx(tx.transactionHash);
+      setVerifiedOnChainTx(tx.transactionHash);
     } catch (error) {
       console.log("error: ", error);
     }
   };
 
-  const CreateIdAndOffchainGroupAnd = async () => {
+  const CreateIdAndOffchainGroup = async () => {
     try {
       //create Identity
       const newIdentity = new Identity("hello"); // create a new Semaphore ID (commitment, trapdoor and nullifier)
-      const newTrapdoor = newIdentity.getTrapdoor(); // secret value, used to encrypt a proof and authenticate the user identity
-      const newNullifier = newIdentity.getNullifier(); // used to prevent double-signaling (created by hashing the trapdoor + external nulifier value)
-      const newIdentityCommitment = newIdentity.getCommitment(); // public value used to identify the user
+      const newTrapdoor = await newIdentity.getTrapdoor(); // secret value, used to encrypt a proof and authenticate the user identity
+      const newNullifier = await newIdentity.getNullifier(); // used to prevent double-signaling (created by hashing the trapdoor + external nulifier value)
+      const newIdentityCommitment = await newIdentity.getCommitment(); // public value used to identify the user
 
       console.log("semaphore id created");
 
@@ -389,11 +398,12 @@ const FineTune = () => {
       console.log("group root: ", group.root);
 
       //adding member to offchain group
-      await group.addMember(identity.getCommitment());
+      await group.addMember(newIdentityCommitment);
 
       setGroup1(group);
 
       console.log("member added to groupOffchain");
+      setIsIdCreated(true);
     } catch (error) {
       console.log(error);
     }
@@ -407,76 +417,33 @@ const FineTune = () => {
 
   return (
     <div className={styles.container}>
+      <ReactTooltip anchorId="my-element" />
+
       <div className="mt-10 mb-72">
         <Sidebar />
 
         {/* Connecton Button */}
         <div className="flex justify-end mr-10">
           <button
-            className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-600 mb-10 block"
+            id="my-element"
+            data-tooltip-content={
+              isIdCreated
+                ? `Your Semaphore ID has been created.`
+                : "A Semaphore ID prevents double voting and preserves your privacy."
+            }
+            data-width={100}
+            data-multiline={true}
+            className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block mr-4"
+            onClick={CreateIdAndOffchainGroup}
+          >
+            {isIdCreated ? "ID Created" : "Create ID"}
+          </button>
+
+          <button
+            className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
             onClick={handleConnectWallet}
           >
             {isConnected ? "Connected" : "Connect Wallet"}
-          </button>
-        </div>
-
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={getStates}
-          >
-            get states
-          </button>
-        </div>
-
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={handleCreateId}
-          >
-            CreateId off-chain
-          </button>
-        </div>
-
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={handleCreateGroupOffchain}
-          >
-            CreateGroup off-chain
-          </button>
-        </div>
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={handleCreateGroupOnchain}
-          >
-            CreateGroup on-chain
-          </button>
-        </div>
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={generateProofOffchain}
-          >
-            GenerateProof off-chain
-          </button>
-        </div>
-        <div className="flex justify-center ">
-          <button
-            className="bg-gray-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={verifyProofOnchain}
-          >
-            Verify proof on-chain
-          </button>
-        </div>
-
-        <div className="flex justify-center ">
-          <button
-            className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-            onClick={CreateIdAndOffchainGroupAnd}
-          >
-            all in one (createId + createGroupOffchain)
           </button>
         </div>
 
@@ -534,7 +501,7 @@ const FineTune = () => {
               +
             </button>
             <button
-              className="bg-green-700 hover:bg-green-900 text-white font-bold py-2 px-4 rounded ml-4"
+              className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded ml-4"
               type="submit"
             >
               Send
@@ -573,7 +540,7 @@ const FineTune = () => {
                     <div className="relative mx-auto my-16 max-w-lg">
                       <div className="bg-white rounded-lg p-8">
                         <div className="text-center font-medium text-xl mb-4">
-                          Voting
+                          Your voting: {signal}
                         </div>
 
                         <div className="absolute top-0 right-0 m-4">
@@ -584,6 +551,34 @@ const FineTune = () => {
                             X
                           </button>
                         </div>
+                        <div>
+                          <div className="m-10">
+                            {verifiedOnChainTx ? (
+                              <a
+                                href={`https://goerli.etherscan.io/tx/${verifiedOnChainTx}`}
+                                target="_blank"
+                              >
+                                Transaction finished
+                              </a>
+                            ) : (
+                              ""
+                            )}
+                            {/* <div className="flex justify-center items-center gap-4">
+                                <p>Loading...</p>
+                                <MoonLoader size={20} />
+                              </div> */}
+                            {generateClicked ? (
+                              <div className="flex justify-center items-center gap-4">
+                                <p>
+                                  Confirm transacion on Meatamask and wait...
+                                </p>
+                                <MoonLoader size={20} />
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        </div>
                         <div className="flex justify-center">
                           <button
                             className="bg-blue-500 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-600 mb-10 block"
@@ -591,7 +586,7 @@ const FineTune = () => {
                               generateProofOffchainAndProofOnchain(signal)
                             }
                           >
-                            Generate proof
+                            Confirm
                           </button>
                         </div>
                       </div>
