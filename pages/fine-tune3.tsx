@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useContext } from "react";
+// page only for testing
+
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { ethers } from "ethers";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import WalletContext from "./components/WalletContext";
 
-const Stats = () => {
+const FineTune = () => {
   const context = useContext(WalletContext);
-
-  // const [provider, setProvider] = useState(null);
-  // const [isConnected, setIsConnected] = useState(false);
 
   const handleConnectWallet = async () => {
     if (context.provider) {
       try {
         context.setIsConnected(true);
-        // Store the wallet connection in local storage to make it persistent
+        // Store the wallet connection in local storage
         localStorage.setItem("walletConnection", "true");
 
         const provider = new ethers.providers.Web3Provider(
@@ -26,7 +26,7 @@ const Stats = () => {
         const signer = provider.getSigner();
         console.log("Account connected: ", await signer.getAddress());
       } catch (error) {
-        console.log("error message: ", error);
+        console.log(error);
       }
     } else {
       console.log("Please install Metamask to connect to your wallet.");
@@ -49,28 +49,38 @@ const Stats = () => {
 
   return (
     <div className={styles.container}>
+      <ReactTooltip anchorId="my-element" />
+
       <div className="mt-10 mb-72">
         <Sidebar />
+
+        {/* Connecton Button */}
         <div className="flex justify-end mr-10">
-          <div>
-            <button
-              className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
-              onClick={handleConnectWallet}
-            >
-              {context.isConnected ? "Connected" : "Connect Wallet"}
-            </button>
-          </div>
-        </div>
-        <div className="bg-white p-4 lg:col-span-1 text-center w-1/3 mx-auto">
-          <h1 className="text-2xl font-medium mb-5">Stats</h1>
-          <p className="text-lg mb-5 ">
-            We don't collect your data, help us to better understand our users.
-          </p>
-          <p>While maintaining your privacy.</p>
+          <button
+            id="my-element"
+            data-tooltip-content={
+              isIdCreated
+                ? `Your Semaphore ID has been created.`
+                : "A Semaphore ID prevents double voting and preserves your privacy."
+            }
+            data-width={100}
+            data-multiline={true}
+            className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block mr-4"
+            onClick={CreateIdAndOffchainGroup}
+          >
+            {isIdCreated ? "ID Created" : "Create ID"}
+          </button>
+
+          <button
+            className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            onClick={handleConnectWallet}
+          >
+            {context.isConnected ? "Connected" : "Connect Wallet"}
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default Stats;
+export default FineTune;

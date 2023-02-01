@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Sidebar from "./components/Sidebar";
 import styles from "../styles/Home.module.css";
 import { v4 as uuidv4 } from "uuid";
@@ -8,18 +8,21 @@ import { Group } from "@semaphore-protocol/group";
 import SemaphoreAbi from "./utils/SemaphoreAbi";
 import { MoonLoader } from "react-spinners";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import WalletContext from "./components/WalletContext";
 const { generateProof } = require("@semaphore-protocol/proof");
 const { verifyProof } = require("@semaphore-protocol/proof");
 const { packToSolidityProof } = require("@semaphore-protocol/proof");
 
 const FineTune = () => {
+  const context = useContext(WalletContext);
+
   const [inputFields, setInputFields] = useState([
     { id: uuidv4(), prompt: "", completion: "" },
   ]);
   const [submittedInputs, setSubmittedInputs] = useState([]);
 
-  const [provider, setProvider] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
+  // const [provider, setProvider] = useState(null);
+  // const [isConnected, setIsConnected] = useState(false);
 
   const [identity, setIdentity] = useState("");
   const [trapdoor, setTrapdoor] = useState("");
@@ -116,9 +119,11 @@ const FineTune = () => {
   };
 
   const handleConnectWallet = async () => {
-    if (provider) {
+    if (context.provider) {
       try {
-        setIsConnected(true);
+        context.setIsConnected(true);
+        // Store the wallet connection in local storage to make it persistent
+        localStorage.setItem("walletConnection", "true");
 
         const provider = new ethers.providers.Web3Provider(
           window.ethereum,
@@ -129,7 +134,7 @@ const FineTune = () => {
         const signer = provider.getSigner();
         console.log("Account connected: ", await signer.getAddress());
       } catch (error) {
-        console.log(error);
+        console.log("error message: ", error);
       }
     } else {
       console.log("Please install Metamask to connect to your wallet.");
@@ -411,7 +416,15 @@ const FineTune = () => {
 
   useEffect(() => {
     if (window.ethereum) {
-      setProvider(window.ethereum);
+      context.setProvider(window.ethereum);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Check if the wallet connection is stored in local storage
+    const walletConnection = localStorage.getItem("walletConnection");
+    if (walletConnection) {
+      context.setIsConnected(true);
     }
   }, []);
 
@@ -443,7 +456,7 @@ const FineTune = () => {
             className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
             onClick={handleConnectWallet}
           >
-            {isConnected ? "Connected" : "Connect Wallet"}
+            {context.isConnected ? "Connected" : "Connect Wallet"}
           </button>
         </div>
 
