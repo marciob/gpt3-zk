@@ -24,6 +24,16 @@ const FineTune = () => {
   // const [provider, setProvider] = useState(null);
   // const [isConnected, setIsConnected] = useState(false);
 
+  const [hover, setHover] = useState(false);
+
+  const handleMouseEnter = () => {
+    setHover(true);
+  };
+
+  const handleMouseLeave = () => {
+    setHover(false);
+  };
+
   const [identity, setIdentity] = useState("");
   const [trapdoor, setTrapdoor] = useState("");
   const [nullifier, setNullifier] = useState("");
@@ -458,10 +468,20 @@ const FineTune = () => {
           </button>
 
           <button
-            className="bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block"
+            className={`bg-gray-800 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-600 mb-10 block${
+              context.isConnected ? " hover:cursor-pointer" : ""
+            }`}
             onClick={handleConnectWallet}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
-            {context.isConnected ? "Connected" : "Connect Wallet"}
+            {context.isConnected ? (
+              <span className="text-white hover:text-red-500">
+                {hover ? "Disconnect" : "Connected"}
+              </span>
+            ) : (
+              "Connect Wallet"
+            )}
           </button>
         </div>
 
