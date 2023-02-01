@@ -119,10 +119,15 @@ const FineTune = () => {
   };
 
   const handleConnectWallet = async () => {
-    if (context.provider) {
+    if (context.isConnected) {
+      // Disconnect the wallet
+      context.setIsConnected(false);
+      // Remove the wallet connection from local storage
+      localStorage.removeItem("walletConnection");
+    } else if (context.provider) {
       try {
         context.setIsConnected(true);
-        // Store the wallet connection in local storage to make it persistent
+        // Store the wallet connection in local storage
         localStorage.setItem("walletConnection", "true");
 
         const provider = new ethers.providers.Web3Provider(
@@ -134,7 +139,7 @@ const FineTune = () => {
         const signer = provider.getSigner();
         console.log("Account connected: ", await signer.getAddress());
       } catch (error) {
-        console.log("error message: ", error);
+        console.log(error);
       }
     } else {
       console.log("Please install Metamask to connect to your wallet.");
