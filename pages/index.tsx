@@ -5,6 +5,7 @@ import styles from "../styles/Home.module.css";
 import { useState, useEffect } from "react";
 import { MoonLoader } from "react-spinners";
 import Sidebar from "./components/Sidebar";
+import faqData_semaphore, { faqData_unirep } from "./utils/faqData";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,29 @@ export default function Home() {
   const [suggestion, setSuggestion] = useState("");
   const [loading, setLoading] = useState(false);
 
+  //handlingle open and close questions in FAQ section
+  const [openItems, setOpenItems] = useState([]);
+
+  //selected model from sidebar
   let selectedModel = Sidebar.selectedModel;
+
+  let faqData;
+
+  if (selectedModel === "Semaphore") {
+    faqData = faqData_semaphore;
+  } else {
+    faqData = faqData_unirep;
+  }
+
+  // function to toggle the open and close questions in FAQ section
+  const toggleItem = (index) => {
+    setOpenItems((prevOpenItems) => {
+      if (prevOpenItems.includes(index)) {
+        return prevOpenItems.filter((i) => i !== index);
+      }
+      return [...prevOpenItems, index];
+    });
+  };
 
   useEffect(() => {
     if (input.length <= 100) {
@@ -119,6 +142,26 @@ export default function Home() {
             </div>
           )}
         </div>
+      </div>
+      {/* FAQ section */}
+      <div className="flex flex-col gap-2 justify-center w-1/3 mx-auto">
+        <h1>Frequently Asked Questions:</h1>
+        <section className="container mx-auto p-4">
+          {faqData.map((faqData, index) => (
+            <div
+              key={index}
+              className="border-b border-gray-300 py-4 cursor-pointer m-3"
+              onClick={() => toggleItem(index)}
+            >
+              <h3 className="text-xl font-medium">{faqData.question}</h3>
+              {openItems.includes(index) && (
+                <p className="text-gray-600 py-2 pointer-events-none">
+                  {faqData.answer}
+                </p>
+              )}
+            </div>
+          ))}
+        </section>
       </div>
     </div>
   );
